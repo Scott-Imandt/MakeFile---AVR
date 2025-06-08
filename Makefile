@@ -9,16 +9,33 @@ CFLAGS = -mmcu=$(MCU) -Os
 PROGRAMMER = usbtiny
 PART = t85 # or m328p
 
-all: $(TARGET).hex
+SRC = $(TARGET).c
+BUILD_DIR = build
 
-$(TARGET).out: $(TARGET).c
+OUT_FILE = $(BUILD_DIR)/$(TARGET).out
+HEX_FILE = $(BUILD_DIR)/$(TARGET).hex
+
+# Default target
+all: $(HEX_FILE)
+
+# Ensure build directory exists
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
+# Compile C to .out
+$(OUT_FILE): $(SRC) | $(BUILD_DIR)
 	avr-gcc $(CFLAGS) -o $@ $<
 
-$(TARGET).hex: $(TARGET).out
+# Convert .out to .hex
+$(HEX_FILE): $(OUT_FILE)
 	avr-objcopy -O ihex -j .text -j .data -R .eeprom $< $@
 
-flash: $(TARGET).hex
-	avrdude -c $(PROGRAMMER) -p $(PART) -U flash:w:$<:a
+# Flash to microcontroller
+flash: $(HEX_FILE)
+	avrdude -c $(PROGRAMMER) -p $(PART) -U flash:w:$(HEX_FILE):a
 
+# Clean build files
 clean:
-	rm -f *.out *.hex
+	rm -rf $(BUILD_DIR)
+
+
