@@ -4,7 +4,7 @@
 
 TARGET = main
 MCU = attiny85 # or can be atmega328p
-CFLAGS = -mmcu=$(MCU) -Os
+CFLAGS = -mmcu=$(MCU) -Os -std=c99
 
 PROGRAMMER = usbtiny
 PART = t85 # or m328p
